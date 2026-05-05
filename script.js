@@ -65,7 +65,6 @@ window.onload = function() {
     const notificationCloseBtn = document.getElementById('notification-close-btn');
 
     // --- 4. URL CHECK (MOVED TO ABSOLUTE TOP) ---
-    // This forces Player 2 straight to the invite screen instantly
     const urlParams = new URLSearchParams(window.location.search);
     const roomParam = urlParams.get('room');
     if (roomParam) {
@@ -182,13 +181,12 @@ window.onload = function() {
         });
     };
 
-    // --- REVERTED REMATCH CLICKS ---
+    // --- REMATCH CLICKS ---
     playAgainBtn.onclick = () => {
         if (gameMode === "bot") {
             resultModal.classList.add('hidden');
             startLocalGame();
         } else {
-            // Reverted strictly to the classic hidden/unhidden structure
             playAgainBtn.classList.add('hidden');
             rematchStatus.innerText = "Request sent. Waiting for friend...";
             rematchStatus.classList.remove('hidden');
@@ -231,7 +229,7 @@ window.onload = function() {
             }
             updateScoreboard();
 
-            // --- REVERTED REMATCH LOGIC ---
+            // --- REMATCH LOGIC ---
             const otherRole = myRole === "X" ? "O" : "X";
             
             if (data.rematch === "accepted") {
@@ -241,6 +239,7 @@ window.onload = function() {
                     menuScreen.classList.add('hidden'); gameScreen.classList.remove('hidden'); currentScreen = "game";
                 }
                 if (myRole === "X") db.ref('rooms/' + currentRoom).update({ rematch: null });
+                
             } else if (data.rematch === otherRole + "_req") {
                 if (currentScreen === "menu") {
                     globalRematchModal.classList.remove('hidden');
@@ -250,8 +249,14 @@ window.onload = function() {
                     acceptRematchBtn.classList.remove('hidden');
                     playAgainBtn.classList.add('hidden');
                 }
+            } else if (data.rematch === myRole + "_req") {
+                // Keep my UI locked in the waiting state
+                playAgainBtn.classList.add('hidden');
+                rematchStatus.innerText = "Request sent. Waiting for friend...";
+                rematchStatus.classList.remove('hidden');
             }
 
+            // Update Board
             board = data.board;
             currentTurn = data.turn;
             cells.forEach((cell, index) => {
@@ -259,7 +264,9 @@ window.onload = function() {
                 cell.style.color = board[index] === "X" ? "#3b82f6" : "#10b981";
             });
 
-            if (data.players === 2) {
+            // CRITICAL FIX: Only check for a winner if NO ONE has asked for a rematch. 
+            // This stops the game from instantly resetting the rematch popup.
+            if (data.players === 2 && !data.rematch) {
                 isGameActive = true;
                 statusText.innerText = (currentTurn === myRole) ? "Your Turn!" : friendName + " is thinking...";
                 checkMultiplayerWinner();
