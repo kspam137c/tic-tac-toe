@@ -250,13 +250,12 @@ window.onload = function() {
                     playAgainBtn.classList.add('hidden');
                 }
             } else if (data.rematch === myRole + "_req") {
-                // Keep my UI locked in the waiting state
                 playAgainBtn.classList.add('hidden');
                 rematchStatus.innerText = "Request sent. Waiting for friend...";
                 rematchStatus.classList.remove('hidden');
             }
 
-            // Update Board
+            // Update Board Visually
             board = data.board;
             currentTurn = data.turn;
             cells.forEach((cell, index) => {
@@ -264,14 +263,58 @@ window.onload = function() {
                 cell.style.color = board[index] === "X" ? "#3b82f6" : "#10b981";
             });
 
-            // CRITICAL FIX: Only check for a winner if NO ONE has asked for a rematch. 
-            // This stops the game from instantly resetting the rematch popup.
+            // CRITICAL FIX: The Infinite Loop Lock
             if (data.players === 2 && !data.rematch) {
-                isGameActive = true;
-                statusText.innerText = (currentTurn === myRole) ? "Your Turn!" : friendName + " is thinking...";
-                checkMultiplayerWinner();
+                let winner = getMultiplayerWinner();
+                let isDraw = !winner && !board.includes("");
+
+                if (winner || isDraw) {
+                    // Only run this block ONCE when transitioning from Active to Game Over
+                    if (isGameActive) { 
+                        isGameActive = false; // Locks the loop!
+                        statusText.innerText = "Game Over";
+                        
+                        if (winner) {
+                            if (winner === myRole) {
+                                resultMessage.innerText = "You Win! 🎉";
+                                // This single update will no longer cause a crash
+                                if (myRole === "X") db.ref('rooms/' + currentRoom).update({ hostScore: hostScore + 1 });
+                                else db.ref('rooms/' + currentRoom).update({ guestScore: guestScore + 1 });
+                            } else {
+                                resultMessage.innerText = "You Lose! 😢";
+                            }
+                        } else {
+                            resultMessage.innerText = "Draw! 🤝";
+                        }
+                        
+                        playAgainBtn.innerText = "Ask for Rematch";
+                        playAgainBtn.disabled = false;
+                        playAgainBtn.style.opacity = "1";
+                        playAgainBtn.classList.remove('hidden');
+                        acceptRematchBtn.classList.add('hidden');
+                        rematchStatus.classList.add('hidden');
+                        
+                        setTimeout(() => resultModal.classList.remove('hidden'), 300);
+                    }
+                } else {
+                    // Game is currently being played
+                    isGameActive = true;
+                    statusText.innerText = (currentTurn === myRole) ? "Your Turn!" : friendName + " is thinking...";
+                }
             }
         });
+    }
+
+    // Separated the pure logic check from the database updates
+    function getMultiplayerWinner() {
+        const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        for (let combo of wins) {
+            const [a,b,c] = combo;
+            if (board[a] && board[a] === board[b] && board[a] === board[c]) { 
+                return board[a]; 
+            }
+        }
+        return null;
     }
 
     // --- 8. GAME LOGIC ---
@@ -339,32 +382,6 @@ window.onload = function() {
         }
         if (!board.includes("")) { endGameLocal("Draw!", "#f8fafc"); return true; }
         return false;
-    }
-
-    function checkMultiplayerWinner() {
-        const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-        let winner = "";
-        for (let combo of wins) {
-            const [a,b,c] = combo;
-            if (board[a] && board[a] === board[b] && board[a] === board[c]) { winner = board[a]; break; }
-        }
-        if (winner || !board.includes("")) {
-            isGameActive = false; statusText.innerText = "Game Over";
-            if (winner) {
-                if (winner === myRole) {
-                    resultMessage.innerText = "You Win! 🎉";
-                    if (myRole === "X") db.ref('rooms/' + currentRoom).update({ hostScore: hostScore + 1 });
-                    else db.ref('rooms/' + currentRoom).update({ guestScore: guestScore + 1 });
-                } else resultMessage.innerText = "You Lose! 😢";
-            } else resultMessage.innerText = "Draw! 🤝";
-            
-            playAgainBtn.innerText = "Ask for Rematch";
-            playAgainBtn.classList.remove('hidden');
-            acceptRematchBtn.classList.add('hidden');
-            rematchStatus.classList.add('hidden');
-            
-            setTimeout(() => resultModal.classList.remove('hidden'), 300);
-        }
     }
 
     function endGameLocal(msg, color) { isGameActive = false; resultMessage.innerText = msg; resultMessage.style.color = color; setTimeout(() => resultModal.classList.remove('hidden'), 300); }
