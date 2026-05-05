@@ -1,0 +1,219 @@
+/* --- GLOBAL STYLES --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #0f172a;
+    color: #f8fafc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 30px;
+    background: linear-gradient(to right, #3b82f6, #10b981);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* --- MENU & BOXES --- */
+.menu, .multiplayer-box, #setup-box, #lobby-box {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.subtitle {
+    color: #94a3b8;
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+/* --- INPUTS (ZOOM FIX) --- */
+input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 2px solid #334155;
+    background-color: #1e293b;
+    color: white;
+    text-align: center;
+    /* CRITICAL: 16px font prevents mobile browsers from auto-zooming */
+    font-size: 16px !important; 
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+input[type="text"]:focus {
+    border-color: #3b82f6;
+}
+
+/* --- BUTTONS --- */
+.btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.primary-btn { background-color: #3b82f6; color: white; }
+.primary-btn:hover { background-color: #2563eb; transform: translateY(-2px); }
+
+.secondary-btn { background-color: #10b981; color: white; }
+.secondary-btn:hover { background-color: #059669; transform: translateY(-2px); }
+
+.outline-btn {
+    background-color: transparent;
+    border: 2px solid #334155;
+    color: #f8fafc;
+}
+.outline-btn:hover { background-color: #334155; }
+
+/* --- MULTIPLAYER ELEMENTS --- */
+.divider {
+    display: flex;
+    align-items: center;
+    color: #475569;
+    font-size: 0.8rem;
+    margin: 10px 0;
+}
+
+.divider::before, .divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background-color: #334155;
+    margin: 0 10px;
+}
+
+.join-box {
+    display: flex;
+    gap: 10px;
+}
+
+.join-box input {
+    flex: 2;
+}
+
+.join-box button {
+    flex: 1;
+}
+
+/* --- GAME SCREEN --- */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.header-text {
+    display: flex;
+    flex-direction: column;
+}
+
+#status-text { font-size: 1.2rem; }
+
+.quit-btn {
+    width: auto;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+/* --- TIC TAC TOE BOARD --- */
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    background-color: #334155;
+    padding: 10px;
+    border-radius: 12px;
+}
+
+.cell {
+    aspect-ratio: 1/1;
+    background-color: #1e293b;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.cell:hover { background-color: #2d3748; }
+
+/* --- MODALS --- */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.modal-content {
+    background-color: #1e293b;
+    padding: 30px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 350px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* --- UTILITIES --- */
+.hidden { display: none !important; }
+
+.room-display-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* --- LOBBY/REMATCH STYLES --- */
+#lobby-box {
+    padding: 20px;
+    background: #1e293b;
+    border-radius: 12px;
+}
+
+#rematch-status {
+    font-style: italic;
+    font-size: 0.9rem;
+}

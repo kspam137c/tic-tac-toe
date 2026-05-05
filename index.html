@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Tic Tac Toe</h1>
+        
+        <div class="menu" id="menu-screen">
+            <div id="setup-box">
+                <input type="text" id="player-name" placeholder="Enter Your Name (Required)" style="margin-bottom: 20px; font-weight: bold; text-align: center;">
+                
+                <div id="standard-menu">
+                    <p class="subtitle">Select your game mode</p>
+                    <button id="play-bot" class="btn primary-btn">Play vs Bot</button>
+                    <div class="divider"><span>OR</span></div>
+                    <div class="multiplayer-box">
+                        <button id="create-room" class="btn secondary-btn">Create Room</button>
+                        <div class="join-box">
+                            <input type="text" id="room-code" placeholder="Enter 4-digit code">
+                            <button id="join-room" class="btn outline-btn">Join</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="invite-menu" class="hidden">
+                    <p class="subtitle" style="color: #10b981; font-weight: bold;">You've been invited!</p>
+                    <button id="invite-join-btn" class="btn primary-btn">Join Game</button>
+                    <button id="invite-cancel-btn" class="btn outline-btn" style="margin-top: 10px;">Cancel</button>
+                </div>
+            </div>
+
+            <div id="lobby-box" class="hidden">
+                <p class="subtitle">Waiting for opponent...</p>
+                <div class="room-display-box" style="justify-content: center; margin-bottom: 20px;">
+                    <p style="font-size: 1rem;">Room Code: <span id="lobby-room-id" style="font-size: 1.2rem;"></span></p>
+                </div>
+                <button id="copy-link-btn" class="btn primary-btn" style="margin-bottom: 10px;">Copy Invite Link</button>
+                <button id="cancel-lobby-btn" class="btn outline-btn">Cancel</button>
+            </div>
+        </div>
+
+        <div id="game-screen" class="hidden">
+            <div class="game-header">
+                <div class="header-text">
+                    <h2 id="status-text">Your Turn! (X)</h2>
+                    <p id="scoreboard" style="color: #94a3b8; font-size: 0.85rem; margin-top: 4px; font-weight: 600;"></p>
+                </div>
+                <button id="quit-btn" class="btn outline-btn quit-btn">Quit</button>
+            </div>
+            <div class="board">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-modal" class="modal hidden">
+        <div class="modal-content">
+            <h1 id="result-message">You Win! 🎉</h1>
+            <p id="rematch-status" class="hidden" style="margin-bottom: 20px; color: #94a3b8; font-weight: 600;"></p>
+            <button id="play-again-btn" class="btn primary-btn">Ask for Rematch</button>
+            <button id="accept-rematch-btn" class="btn secondary-btn hidden">Accept Rematch</button>
+            <button id="modal-quit-btn" class="btn outline-btn" style="margin-top: 15px;">Quit to Menu</button>
+        </div>
+    </div>
+
+    <div id="global-rematch-modal" class="modal hidden">
+        <div class="modal-content">
+            <h1 id="global-rematch-message">Rematch!</h1>
+            <p style="margin-bottom: 20px; color: #94a3b8;">Your friend wants to play again.</p>
+            <button id="global-accept-btn" class="btn secondary-btn">Accept & Join</button>
+            <button id="global-decline-btn" class="btn outline-btn" style="margin-top: 15px;">Decline</button>
+        </div>
+    </div>
+
+    <div id="notification-modal" class="modal hidden">
+        <div class="modal-content">
+            <h1 id="notification-message">Friend Left</h1>
+            <p id="notification-detail" style="margin-bottom: 20px; color: #94a3b8; font-weight: 600;"></p>
+            <button id="notification-close-btn" class="btn outline-btn">Back to Menu</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
