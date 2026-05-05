@@ -64,7 +64,18 @@ window.onload = function() {
     const notificationDetail = document.getElementById('notification-detail');
     const notificationCloseBtn = document.getElementById('notification-close-btn');
 
-    // --- 4. UTILS ---
+    // --- 4. URL CHECK (MOVED TO ABSOLUTE TOP) ---
+    // This forces Player 2 straight to the invite screen instantly
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomParam = urlParams.get('room');
+    if (roomParam) {
+        standardMenu.classList.add('hidden');
+        inviteMenu.classList.remove('hidden');
+        roomCodeInput.value = roomParam;
+        playerNameInput.placeholder = "Enter your name to join!";
+    }
+
+    // --- 5. UTILS ---
     function openNotificationModal(title, detail, color) {
         if (isIntentionallyLeaving) return;
         notificationMessage.innerText = title;
@@ -107,7 +118,7 @@ window.onload = function() {
         scoreboardText.innerText = `${xName} (X): ${hostScore}  |  ${oName} (O): ${guestScore}`;
     }
 
-    // --- 5. BUTTONS ---
+    // --- 6. BUTTONS ---
     playBotBtn.onclick = () => {
         myName = playerNameInput.value.trim();
         if (!myName) return openNotificationModal("Error", "Enter your name!", "#ef4444");
@@ -177,11 +188,10 @@ window.onload = function() {
             resultModal.classList.add('hidden');
             startLocalGame();
         } else {
-            // Instantly hide the "Ask" button and show "Waiting"
+            // Reverted strictly to the classic hidden/unhidden structure
             playAgainBtn.classList.add('hidden');
             rematchStatus.innerText = "Request sent. Waiting for friend...";
             rematchStatus.classList.remove('hidden');
-            // Write our request to Firebase using our role (e.g. "X_req")
             db.ref('rooms/' + currentRoom).update({ rematch: myRole + '_req' });
         }
     };
@@ -198,7 +208,7 @@ window.onload = function() {
         });
     }
 
-    // --- 6. MULTIPLAYER LISTENER ---
+    // --- 7. MULTIPLAYER LISTENER ---
     function setupMultiplayerListener() {
         db.ref('rooms/' + currentRoom).on('value', (snapshot) => {
             const data = snapshot.val();
@@ -225,28 +235,23 @@ window.onload = function() {
             const otherRole = myRole === "X" ? "O" : "X";
             
             if (data.rematch === "accepted") {
-                // Game is restarting
                 resultModal.classList.add('hidden');
                 globalRematchModal.classList.add('hidden');
                 if (currentScreen === "menu") {
                     menuScreen.classList.add('hidden'); gameScreen.classList.remove('hidden'); currentScreen = "game";
                 }
-                // Host resets the flag so it doesn't loop
                 if (myRole === "X") db.ref('rooms/' + currentRoom).update({ rematch: null });
-                
             } else if (data.rematch === otherRole + "_req") {
-                // The OTHER person asked for a rematch
                 if (currentScreen === "menu") {
                     globalRematchModal.classList.remove('hidden');
                 } else {
                     rematchStatus.innerText = friendName + " wants a rematch!";
                     rematchStatus.classList.remove('hidden');
                     acceptRematchBtn.classList.remove('hidden');
-                    playAgainBtn.classList.add('hidden'); // Hide our ask button
+                    playAgainBtn.classList.add('hidden');
                 }
             }
 
-            // Update Board
             board = data.board;
             currentTurn = data.turn;
             cells.forEach((cell, index) => {
@@ -262,7 +267,7 @@ window.onload = function() {
         });
     }
 
-    // --- 7. GAME LOGIC ---
+    // --- 8. GAME LOGIC ---
     cells.forEach(cell => cell.onclick = function() {
         const index = this.getAttribute('data-index');
         if (board[index] !== "" || !isGameActive || currentTurn !== myRole) return;
@@ -282,7 +287,6 @@ window.onload = function() {
         botStarter = botStarter === "X" ? "O" : "X"; currentTurn = botStarter;
         cells.forEach(cell => cell.innerText = "");
         
-        // Reset local game UI
         playAgainBtn.innerText = "Play Again";
         playAgainBtn.classList.remove('hidden');
         acceptRematchBtn.classList.add('hidden');
@@ -347,10 +351,7 @@ window.onload = function() {
                 } else resultMessage.innerText = "You Lose! 😢";
             } else resultMessage.innerText = "Draw! 🤝";
             
-            // STRICT UI RESET for the end of the game
             playAgainBtn.innerText = "Ask for Rematch";
-            playAgainBtn.disabled = false;
-            playAgainBtn.style.opacity = "1";
             playAgainBtn.classList.remove('hidden');
             acceptRematchBtn.classList.add('hidden');
             rematchStatus.classList.add('hidden');
@@ -360,8 +361,4 @@ window.onload = function() {
     }
 
     function endGameLocal(msg, color) { isGameActive = false; resultMessage.innerText = msg; resultMessage.style.color = color; setTimeout(() => resultModal.classList.remove('hidden'), 300); }
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomParam = urlParams.get('room'); 
-    if (roomParam) { standardMenu.classList.add('hidden'); inviteMenu.classList.remove('hidden'); roomCodeInput.value = roomParam; }
 };
